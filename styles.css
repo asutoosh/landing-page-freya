@@ -47,7 +47,7 @@ html {
 
 body {
     font-family: var(--font-primary);
-    background: #050505; /* Darker background for grid contrast */
+    background: #050505; /* Dark background */
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
@@ -55,6 +55,12 @@ body {
     -moz-osx-font-smoothing: grayscale;
     position: relative;
     overflow-x: hidden;
+}
+
+/* Ensure content sits above the grid */
+header, section, footer, .modal-overlay {
+    position: relative;
+    z-index: 1;
 }
 
 /* Grid Background & Spotlight */
@@ -65,19 +71,21 @@ body {
     width: 100vw;
     height: 100vh;
     pointer-events: none;
-    z-index: -1;
+    z-index: 0; /* Behind content, but on top of body bg? */
+    /* Actually, fixed elements relate to viewport. */
     background-image: 
-        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
-    /* Spotlight Mask */
+        linear-gradient(to right, rgba(168, 85, 247, 0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(168, 85, 247, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+    
+    /* Reveal effect */
     -webkit-mask-image: radial-gradient(
-        circle 400px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        circle 300px at var(--mouse-x, 50%) var(--mouse-y, 50%),
         black 0%,
         transparent 100%
     );
     mask-image: radial-gradient(
-        circle 400px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        circle 300px at var(--mouse-x, 50%) var(--mouse-y, 50%),
         black 0%,
         transparent 100%
     );
@@ -105,7 +113,14 @@ img {
     left: 0;
     right: 0;
     z-index: 1000;
-    background: var(--bg-primary);
+    background: transparent;
+    border-bottom: none;
+    transition: background 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+.header.scrolled {
+    background: rgba(13, 13, 13, 0.85);
+    backdrop-filter: blur(10px);
 }
 
 .header-container {
@@ -161,6 +176,12 @@ img {
 .header-line {
     height: 2px;
     background: linear-gradient(90deg, var(--accent-teal), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.header.scrolled .header-line {
+    opacity: 1;
 }
 
 /* ============================================
@@ -213,9 +234,8 @@ img {
     text-align: center;
     padding: 8rem 2rem 4rem;
     background: 
-        radial-gradient(ellipse at 50% 0%, rgba(45, 212, 191, 0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 80%, rgba(245, 213, 71, 0.05) 0%, transparent 40%),
-        var(--bg-primary);
+        radial-gradient(ellipse at 50% 0%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(245, 213, 71, 0.05) 0%, transparent 40%);
 }
 
 .hero-content {
@@ -265,8 +285,8 @@ img {
    ============================================ */
 
 .features {
-    padding: 6rem 2rem;
-    background: var(--bg-secondary);
+    padding: 3rem 2rem;
+    background: transparent;
 }
 
 .features-container {
@@ -309,8 +329,8 @@ img {
 }
 
 .funding-section {
-    padding: 6rem 2rem;
-    background: var(--bg-primary);
+    padding: 3rem 2rem;
+    background: transparent;
 }
 
 .funding-container {
@@ -345,8 +365,8 @@ img {
    ============================================ */
 
 .what-you-get {
-    padding: 6rem 2rem;
-    background: var(--bg-primary);
+    padding: 3rem 2rem;
+    background: transparent;
 }
 
 .benefits-box {
@@ -383,11 +403,11 @@ img {
 
 .join-whop {
     padding: 4rem 2rem;
-    background: var(--bg-secondary);
+    background: transparent;
 }
 
 .join-whop-container {
-    max-width: 600px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -410,8 +430,8 @@ img {
    ============================================ */
 
 .signals-preview {
-    padding: 6rem 2rem;
-    background: var(--bg-primary);
+    padding: 3rem 2rem;
+    background: transparent;
 }
 
 .signals-container {
@@ -585,6 +605,7 @@ img {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    overflow-y: auto; /* Enable scrolling */
 }
 
 .message {
@@ -621,11 +642,172 @@ img {
     align-self: flex-end;
 }
 
+/* --- TELEGRAM LINK PREVIEW --- */
+.link-preview {
+    border-left: 2px solid #5288c1;
+    padding-left: 8px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.link-title {
+    color: #5288c1;
+    font-weight: 600;
+    font-size: 14px;
+}
+.link-desc {
+    font-size: 13px;
+    color: #cfd4d9;
+}
+
+/* --- TRADE SUMMARY TABLE --- */
+.image-container {
+    background-color: #1b212d;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 5px;
+    border: 1px solid #28303a;
+    margin-top: 0.5rem;
+}
+
+.trade-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+    font-family: monospace;
+    background: #222;
+}
+.trade-table th {
+    background-color: #333;
+    color: #ddd;
+    padding: 4px;
+    text-align: left;
+}
+.trade-table td {
+    border-bottom: 1px solid #333;
+    padding: 4px;
+    color: #ccc;
+}
+.trade-title {
+    background: #2b2b2b;
+    color: #fff;
+    padding: 5px;
+    font-size: 11px;
+    font-weight: bold;
+    border-bottom: 1px solid #444;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.icon-trade {
+    color: #d9534f;
+}
+
+/* --- DATE DIVIDERS --- */
+.date-divider {
+    align-self: center;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 15px 0;
+    backdrop-filter: blur(2px);
+}
+
+.code-block {
+    font-family: monospace;
+    background: #111;
+    padding: 5px;
+    border-radius: 4px;
+    color: #a9b7c6;
+    font-size: 12px;
+    white-space: pre-wrap;
+    margin: 5px 0;
+}
+
+/* Overriding bubble content for list styles if needed */
+.bubble-content ul {
+    margin-left: 20px;
+    margin-bottom: 8px;
+}
+
 .signal-header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 0.75rem;
+}
+
+/* Telegram Style Messages */
+.telegram-message-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    margin-bottom: 25px; /* Spacing between rows */
+}
+
+.message-avatar-container {
+    flex-shrink: 0;
+}
+
+.message-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.telegram-bubble {
+    background: #182533; /* Dark Telegram theme color */
+    border-radius: 12px 12px 12px 0; /* Corner radius like image */
+    padding: 10px 15px;
+    max-width: 80%;
+    position: relative;
+    /* Optional shadow */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.bubble-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.bubble-name {
+    color: #e17055; /* Orange color from image */
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-right: 10px;
+}
+
+.bubble-admin {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    background: transparent;
+}
+
+.bubble-content {
+    color: #ffffff;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.bubble-content p {
+    margin-bottom: 4px;
+}
+
+.bubble-content p:last-child {
+    margin-bottom: 0;
+}
+
+.bubble-time {
+    display: block;
+    text-align: right;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 5px;
 }
 
 .sorcerer-icon {
@@ -706,8 +888,8 @@ img {
    ============================================ */
 
 .pricing {
-    padding: 6rem 2rem;
-    background: var(--bg-secondary);
+    padding: 3rem 2rem;
+    background: transparent;
 }
 
 .pricing-cards {
@@ -725,6 +907,13 @@ img {
     text-align: center;
     border: 1px solid var(--border-subtle);
     transition: var(--transition-medium);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.pricing-card .btn-primary {
+    margin-top: auto;
 }
 
 .pricing-card:hover {
@@ -792,8 +981,8 @@ img {
    ============================================ */
 
 .faq {
-    padding: 6rem 2rem;
-    background: var(--bg-primary);
+    padding: 3rem 2rem;
+    background: transparent;
 }
 
 .faq-list {
@@ -863,8 +1052,7 @@ img {
 .cta {
     padding: 8rem 2rem;
     background: 
-        radial-gradient(ellipse at 50% 100%, rgba(245, 213, 71, 0.1) 0%, transparent 50%),
-        var(--bg-secondary);
+        radial-gradient(ellipse at 50% 100%, rgba(245, 213, 71, 0.1) 0%, transparent 50%);
 }
 
 .cta-content {
@@ -897,7 +1085,7 @@ img {
 
 .footer {
     padding: 3rem 2rem;
-    background: var(--bg-primary);
+    background: transparent;
     border-top: 1px solid var(--border-subtle);
 }
 
@@ -1035,6 +1223,24 @@ img {
     .feature-card {
         padding: 1.5rem;
     }
+    
+    /* Additional mobile pricing adjustments */
+    .pricing {
+        padding: 2rem 1rem;
+    }
+    
+    .pricing-card {
+        min-width: 90% !important;
+        padding: 1.5rem 1rem !important;
+    }
+    
+    .pricing-price {
+        font-size: 2rem !important;
+    }
+    
+    .pricing-features li {
+        font-size: 0.8rem;
+    }
 }
 
 /* ============================================
@@ -1167,6 +1373,7 @@ img {
     margin-bottom: 0.75rem;
     background: linear-gradient(135deg, var(--text-primary) 0%, #e0e0e0 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 800;
 }
@@ -1244,8 +1451,8 @@ img {
    ============================================ */
 
 .testimonials-section {
-    padding: 6rem 0;
-    background: var(--bg-primary);
+    padding: 3rem 0;
+    background: transparent;
     overflow: hidden;
 }
 
@@ -1342,6 +1549,36 @@ img {
     100% { transform: translateX(0); }
 }
 
+/* Premium glow pulse animation */
+@keyframes premiumGlow {
+    0%, 100% {
+        box-shadow: 
+            0 20px 60px rgba(0, 0, 0, 0.6),
+            0 0 40px rgba(168, 85, 247, 0.4),
+            0 0 80px rgba(168, 85, 247, 0.2),
+            0 0 120px rgba(245, 213, 71, 0.1),
+            inset 0 0 20px rgba(168, 85, 247, 0.1);
+    }
+    50% {
+        box-shadow: 
+            0 20px 60px rgba(0, 0, 0, 0.6),
+            0 0 50px rgba(168, 85, 247, 0.5),
+            0 0 100px rgba(168, 85, 247, 0.3),
+            0 0 140px rgba(245, 213, 71, 0.15),
+            inset 0 0 25px rgba(168, 85, 247, 0.15);
+    }
+}
+
+/* Subtle float animation for depth */
+@keyframes subtleFloat {
+    0%, 100% {
+        transform: scale(1.05) translateY(-8px);
+    }
+    50% {
+        transform: scale(1.06) translateY(-10px);
+    }
+}
+
 /* Mobile Adjustments */
 @media (max-width: 768px) {
     .testimonial-card {
@@ -1349,3 +1586,585 @@ img {
     }
 }
 
+
+/* ============================================
+   PREVIEW GALLERY SECTION
+   ============================================ */
+
+.preview-gallery {
+    padding: 3rem 2rem;
+    background: transparent;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.gallery-header {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+}
+
+.gallery-title {
+    margin-bottom: 0.5rem;
+}
+
+.gallery-stars {
+    font-size: 2rem;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 2rem;
+    position: relative;
+}
+
+.mobile-mockup {
+    background: var(--bg-card);
+    border-radius: 20px;
+    border: 1px solid var(--border-subtle);
+    overflow: hidden;
+    height: 600px; /* Fixed height for consistency */
+    display: flex;
+    flex-direction: column;
+    box-shadow: 
+        0 4px 24px rgba(0, 0, 0, 0.4),
+        0 0 0 0 rgba(168, 85, 247, 0);
+    transition: 
+        all 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+        border-width 0.3s ease,
+        background-image 0.5s ease;
+    position: relative;
+    transform: scale(1);
+    filter: brightness(1) blur(0px);
+    opacity: 1;
+    z-index: 1;
+    /* Subtle inner glow preparation */
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.03) 0%, transparent 50%);
+}
+
+/* Glassy highlight effect */
+.mobile-mockup::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(245, 213, 71, 0.3) 50%, 
+        transparent 100%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    z-index: 2;
+    pointer-events: none;
+}
+
+/* Hovered panel - Enlarged with neon glow */
+.gallery-grid:hover .mobile-mockup:hover {
+    transform: scale(1.05) translateY(-8px);
+    border-color: var(--accent-teal);
+    border-width: 2px;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.6),
+        0 0 40px rgba(168, 85, 247, 0.4),
+        0 0 80px rgba(168, 85, 247, 0.2),
+        0 0 120px rgba(245, 213, 71, 0.1),
+        inset 0 0 20px rgba(168, 85, 247, 0.1),
+        inset 0 1px 0 rgba(245, 213, 71, 0.2);
+    filter: brightness(1.15) contrast(1.1);
+    opacity: 1;
+    z-index: 10;
+    animation: premiumGlow 3s ease-in-out infinite;
+    /* Enhanced inner glow */
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.15) 0%, transparent 60%),
+        radial-gradient(circle at 50% 100%, rgba(245, 213, 71, 0.08) 0%, transparent 50%);
+}
+
+/* Optional: Subtle float animation on hover (uncomment if desired) */
+/* .gallery-grid:hover .mobile-mockup:hover {
+    animation: premiumGlow 3s ease-in-out infinite, subtleFloat 4s ease-in-out infinite;
+} */
+
+/* Glassy highlight on hover */
+.gallery-grid:hover .mobile-mockup:hover::before {
+    opacity: 1;
+}
+
+/* Dimmed non-hovered panels */
+.gallery-grid:hover .mobile-mockup:not(:hover) {
+    transform: scale(0.95);
+    filter: brightness(0.4) blur(2px);
+    opacity: 0.6;
+    border-color: rgba(255, 255, 255, 0.05);
+    border-width: 1px;
+    box-shadow: 
+        0 2px 12px rgba(0, 0, 0, 0.3),
+        0 0 0 0 rgba(168, 85, 247, 0);
+    /* Reduced inner glow */
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.01) 0%, transparent 50%);
+}
+
+/* Smooth transition for all panels when grid is hovered */
+.gallery-grid:hover .mobile-mockup {
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mockup-header {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-subtle);
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+    transition: all 0.4s ease;
+    backdrop-filter: blur(10px);
+}
+
+/* Enhanced header on hover */
+.gallery-grid:hover .mobile-mockup:hover .mockup-header {
+    background: rgba(0, 0, 0, 0.6);
+    border-bottom-color: rgba(168, 85, 247, 0.3);
+    box-shadow: 0 2px 10px rgba(168, 85, 247, 0.2);
+}
+
+.mockup-content {
+    padding: 1.5rem;
+    flex: 1;
+    overflow-y: auto;
+    /* Custom Scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-teal) transparent;
+    position: relative;
+    transition: all 0.4s ease;
+}
+
+/* Enhanced content brightness on hover */
+.gallery-grid:hover .mobile-mockup:hover .mockup-content {
+    filter: brightness(1.1);
+}
+
+/* Dimmed content for non-hovered panels */
+.gallery-grid:hover .mobile-mockup:not(:hover) .mockup-content {
+    filter: brightness(0.5);
+}
+
+.mockup-content.padding-0 {
+    padding: 0;
+}
+
+/* Results Panel Styling */
+.result-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-subtle);
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    margin-bottom: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.result-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.result-stats .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.result-stats span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.result-stats strong {
+    font-size: 1.1rem;
+}
+
+/* Channel List Styling */
+.mock-channel-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.mock-channel-item:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.mock-channel-item.active {
+    background: rgba(168, 85, 247, 0.1);
+    border-left: 3px solid var(--accent-purple);
+}
+
+.mock-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+}
+
+.mock-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.mock-name {
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.mock-msg {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mock-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Signals Styling */
+.mock-message {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-left: 3px solid var(--accent-purple);
+}
+
+.mock-msg-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.mock-admin-tag {
+    font-size: 0.7rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    color: var(--text-secondary);
+}
+
+.mock-msg-body p {
+    margin: 0.3rem 0;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.mock-msg-body strong {
+    color: var(--text-primary);
+}
+
+.mock-msg-time {
+    display: block;
+    text-align: right;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+}
+
+/* Mobile Responsiveness for Gallery */
+@media (max-width: 900px) {
+    .gallery-grid {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 1rem;
+        padding-bottom: 2rem;
+        margin-top: 2rem;
+        /* Ensure full width scrolling */
+        width: 100vw;
+        margin-left: -2rem; /* Counteract section padding */
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
+    .mobile-mockup {
+        min-width: 85vw; /* Show 85% of card to hint at scroll */
+        scroll-snap-align: center;
+        margin-right: 0;
+    }
+    
+    /* Disable hover effects on mobile for better touch experience */
+    .gallery-grid:hover .mobile-mockup:hover {
+        transform: scale(1);
+        filter: brightness(1) contrast(1);
+        animation: none;
+    }
+    
+    .gallery-grid:hover .mobile-mockup:not(:hover) {
+        transform: scale(1);
+        filter: brightness(1) blur(0px);
+        opacity: 1;
+    }
+    
+    /* Hide scrollbar for cleaner look */
+    .gallery-grid::-webkit-scrollbar {
+        display: none;
+    }
+    .gallery-grid {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    /* Scroll Arrows */
+    .scroll-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--bg-elevated);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-primary);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        transition: all 0.2s;
+        /* Only show if supported, often touch users don't need buttons but user asked for them */
+        display: flex; 
+    }
+
+    .scroll-arrow:hover {
+        background: var(--accent-purple);
+        border-color: var(--accent-purple);
+    }
+    
+    .scroll-arrow:active {
+        transform: translateY(-50%) scale(0.9);
+    }
+
+    .scroll-arrow.prev {
+        left: -10px;
+    }
+
+    .scroll-arrow.next {
+        right: -10px;
+    }
+}
+
+/* Default hide arrows on desktop */
+.scroll-arrow {
+    display: none;
+}
+
+/* Trade Summary Table */
+.trade-summary-container {
+    padding: 1rem;
+    color: var(--text-primary);
+    background: var(--bg-card);
+}
+
+.trade-summary-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.trade-summary-header h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.summary-icon {
+    font-size: 1.2rem;
+}
+
+.trade-summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    white-space: nowrap; /* Prevent wrapping for cleaner look on small screens */
+}
+
+.trade-summary-table th,
+.trade-summary-table td {
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.trade-summary-table th {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding-bottom: 1rem;
+}
+
+.trade-summary-table td:first-child,
+.trade-summary-table th:first-child {
+    text-align: left;
+    padding-left: 0;
+}
+
+.trade-summary-table td:last-child,
+.trade-summary-table th:last-child {
+    padding-right: 0;
+}
+
+.trade-summary-table td:first-child {
+    font-family: 'Courier New', monospace;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+/* Highlight TP columns slightly */
+.trade-summary-table td:nth-child(3),
+.trade-summary-table td:nth-child(4),
+.trade-summary-table td:nth-child(5),
+.trade-summary-table td:nth-child(6) {
+    color: var(--text-primary);
+}
+
+/* SL Column */
+
+/* Utility */
+.padding-0 {
+    padding: 0 !important;
+}
+
+
+@media (max-width: 768px) {
+    /* Horizontal scroll for Funding section cards */
+    .funding-container {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto;
+        gap: 12px;
+        padding: 10px 5px;
+        scroll-snap-type: x mandatory;
+    }
+    
+    .funding-container .feature-card {
+        min-width: 70%;
+        flex-shrink: 0;
+        scroll-snap-align: center;
+    }
+
+    /* Horizontal scroll for Features section cards */
+    .features-container {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto;
+        gap: 12px;
+        padding: 10px 5px;
+        scroll-snap-type: x mandatory;
+    }
+    
+    .features-container .feature-card {
+        min-width: 70%;
+        flex-shrink: 0;
+        scroll-snap-align: center;
+    }
+
+    /* Horizontal pricing cards */
+    .pricing-cards {
+        display: flex !important;
+        flex-direction: row !important;
+        overflow-x: auto;
+        padding: 10px 2rem !important;
+        gap: 1rem !important;
+        justify-content: flex-start;
+        flex-wrap: nowrap !important;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .pricing-card {
+        min-width: 85%;
+        width: 85%;
+        max-width: 400px;
+        padding: 2rem 1.5rem !important;
+        flex-shrink: 0;
+        scroll-snap-align: center;
+    }
+
+    .pricing-badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    .pricing-price {
+        font-size: 2.5rem !important;
+        margin-bottom: 0.5rem;
+    }
+    
+    .pricing-period {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .pricing-features {
+        margin-bottom: 1.5rem;
+    }
+    
+    .pricing-features li {
+        font-size: 0.85rem;
+        padding: 0.5rem 0;
+        line-height: 1.4;
+    }
+    
+    .pricing-card .btn-primary {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.95rem;
+        width: 100%;
+        text-align: center;
+    }
+    
+    /* Hide Live Signals Preview section on mobile */
+    .signals-preview {
+        display: none !important;
+    }
+}

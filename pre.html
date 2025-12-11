@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorcerer Channel Replica</title>
+    <style>
+        /* --- RESET & BASICS --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0e1621; /* Telegram Dark BG */
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* --- CONTAINER --- */
+        .chat-container {
+            width: 100%;
+            max-width: 480px; /* Mobile width mockup */
+            background-color: #0e1621;
+            /* Optional: Add a subtle pattern if you want exact texture */
+            background-image: url('https://web.telegram.org/img/bg_0.png');
+            background-blend-mode: overlay;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            height: 100%;
+            border-left: 1px solid #1c242f;
+            border-right: 1px solid #1c242f;
+        }
+
+        /* --- CHAT AREA --- */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px; /* Close grouping */
+        }
+
+        /* Scrollbar customization */
+        .chat-area::-webkit-scrollbar {
+            width: 5px;
+        }
+        .chat-area::-webkit-scrollbar-thumb {
+            background: #2b3642; 
+            border-radius: 3px;
+        }
+
+        /* --- MESSAGE ROW --- */
+        .message-row {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 8px;
+            max-width: 95%;
+        }
+
+        /* --- AVATAR --- */
+        .avatar-col {
+            width: 42px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- BUBBLE --- */
+        .bubble {
+            background-color: #182533;
+            padding: 6px 10px 6px 12px;
+            border-radius: 10px 10px 10px 0; /* Tail bottom left */
+            position: relative;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+            font-size: 15px;
+            line-height: 1.4;
+            color: white;
+            min-width: 260px;
+        }
+
+        /* Header: Name and Rank */
+        .bubble-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 2px;
+        }
+
+        .sender-name {
+            color: #e5a55d; /* Gold/Orange color from video */
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .sender-tag {
+            color: #6c7883;
+            font-size: 12px;
+        }
+
+        /* Message Text */
+        .bubble-content {
+            white-space: pre-wrap; /* Preserves line breaks */
+            word-wrap: break-word;
+        }
+
+        /* Metadata (Time) */
+        .meta {
+            float: right;
+            margin-left: 10px;
+            margin-top: 5px;
+            font-size: 11px;
+            color: #6c7883;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        /* Reaction (Heart) */
+        .reaction {
+            position: absolute;
+            bottom: -8px;
+            right: -5px;
+            background: #2b353f;
+            border-radius: 10px;
+            padding: 2px 5px;
+            font-size: 12px;
+            border: 2px solid #0e1621;
+        }
+
+        /* --- DATE DIVIDER --- */
+        .date-divider {
+            align-self: center;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 15px 0;
+            backdrop-filter: blur(2px);
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-area" id="chatArea">
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">sorcerer</span>
+                    <span class="sender-tag">admin</span>
+                </div>
+                <div class="bubble-content">Position Status
+Take Profit 2  From  Long Signal
+at Price : 58.285 in USOUSD</div>
+                <div class="meta">18:22</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-content">Position Status
+Take Profit 2  From  Short Signal
+at Price : 4195.74 in XAUUSD</div>
+                <div class="meta">18:24</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">sorcerer</span>
+                    <span class="sender-tag">admin</span>
+                </div>
+                <div class="bubble-content">Position Status
+Take Profit 3  From  Short Signal
+at Price : 4192.50 in XAUUSD</div>
+                <div class="meta">18:40</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-content">Position Status
+Take Profit 3  From  Long Signal
+at Price : 58.486 in USOUSD</div>
+                <div class="meta">18:40</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">script</span>
+                    <span class="sender-tag">: DJ30</span>
+                </div>
+                <div class="bubble-content">Position      : SELL
+Enter Price   : 47752.58
+Take Profit 1 : 47656.31
+Take Profit 2 : 47592.12
+Take Profit 3 : 47495.85
+Take Profit 4 : 47367.48
+Stoploss      : 47913.04</div>
+                <div class="meta">18:45</div>
+                <div class="reaction">❤️</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">sorcerer</span>
+                    <span class="sender-tag">admin</span>
+                </div>
+                <div class="bubble-content">script       : XAUUSD
+Position     : BUY
+Enter Price  : 4211.48
+Take Profit 1 : 4218.66
+Take Profit 2 : 4223.45
+Take Profit 3 : 4230.63
+Take Profit 4 : 4240.21
+Stoploss     : 4199.51</div>
+                <div class="meta">19:01</div>
+            </div>
+        </div>
+
+         <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">script</span>
+                    <span class="sender-tag">: DJ30</span>
+                </div>
+                <div class="bubble-content">Position      : BUY
+Enter Price   : 47866.58
+Take Profit 1 : 47989.24
+Take Profit 2 : 48071.02
+Take Profit 3 : 48193.68
+Take Profit 4 : 48357.23
+Stoploss      : 47662.14</div>
+                <div class="meta">19:05</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">sorcerer</span>
+                    <span class="sender-tag">admin</span>
+                </div>
+                <div class="bubble-content">script       : XAUUSD
+Position     : SELL
+Enter Price  : 4197.44
+Take Profit 1 : 4185.24
+Take Profit 2 : 4177.10
+Take Profit 3 : 4164.90
+Take Profit 4 : 4148.64
+Stoploss     : 4217.78</div>
+                <div class="meta">19:29</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-content">Position Status
+Take Profit 1  From  Long Signal
+at Price : 47989.24 in DJ30</div>
+                <div class="meta">19:34</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-content">Position Status
+Take Profit 2  From  Long Signal
+at Price : 48071.02 in DJ30</div>
+                <div class="meta">19:35</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-content">Position Status
+Take Profit 1  From  Short Signal
+at Price : 4185.24 in XAUUSD</div>
+                <div class="meta">19:41</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">script</span>
+                    <span class="sender-tag">: BTCUSD</span>
+                </div>
+                <div class="bubble-content">Position      : BUY
+Enter Price   : 93420.79
+Take Profit 1 : 94440.16
+Take Profit 2 : 95119.74
+Take Profit 3 : 96139.10
+Take Profit 4 : 97498.26
+Stoploss      : 91721.84</div>
+                <div class="meta">20:09</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">sorcerer</span>
+                    <span class="sender-tag">admin</span>
+                </div>
+                <div class="bubble-content">script       : ETHUSD
+Position     : SELL
+Enter Price  : 3358.76
+Take Profit 1 : 3283.58
+Take Profit 2 : 3233.46
+Take Profit 3 : 3158.27
+Take Profit 4 : 3058.03
+Stoploss     : 3484.06</div>
+                <div class="meta">20:55</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">sorcerer</span>
+                    <span class="sender-tag">admin</span>
+                </div>
+                <div class="bubble-content">script       : USOUSD
+Position     : SELL
+Enter Price  : 58.881
+Take Profit 1 : 58.769
+Take Profit 2 : 58.695
+Take Profit 3 : 58.583
+Take Profit 4 : 58.434
+Stoploss     : 59.067</div>
+                <div class="meta">23:12</div>
+            </div>
+        </div>
+
+        <div class="date-divider">December 11</div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">sorcerer</span>
+                    <span class="sender-tag">admin</span>
+                </div>
+                <div class="bubble-content">Position Status
+Take Profit 1  From  Short Signal
+at Price : 3283.58 in ETHUSD</div>
+                <div class="meta">00:39</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">sorcerer</span>
+                    <span class="sender-tag">admin</span>
+                </div>
+                <div class="bubble-content">script       : XAUUSD
+Position     : BUY
+Enter Price  : 4217.04
+Take Profit 1 : 4221.27
+Take Profit 2 : 4224.09
+Take Profit 3 : 4228.32
+Take Profit 4 : 4233.96
+Stoploss     : 4209.99</div>
+                <div class="meta">03:47</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">sorcerer</span>
+                    <span class="sender-tag">admin</span>
+                </div>
+                <div class="bubble-content">Position Status
+Hit SL  From  Long Signal
+Price : 4209.99 in XAUUSD</div>
+                <div class="meta">04:47</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">sorcerer</span>
+                    <span class="sender-tag">admin</span>
+                </div>
+                <div class="bubble-content">script       : USDJPY
+Position     : BUY
+Enter Price  : 156.066
+Take Profit 1 : 156.403
+Take Profit 2 : 156.627
+Take Profit 3 : 156.964
+Take Profit 4 : 157.413
+Stoploss     : 155.505</div>
+                <div class="meta">06:00</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">sorcerer</span>
+                    <span class="sender-tag">admin</span>
+                </div>
+                <div class="bubble-content">script       : USOUSD
+Position     : SELL
+Enter Price  : 57.987
+Take Profit 1 : 57.849
+Take Profit 2 : 57.757
+Take Profit 3 : 57.620
+Take Profit 4 : 57.436
+Stoploss     : 58.217</div>
+                <div class="meta">08:12</div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col"><div class="avatar"><img src="assets/favicon.jpg" alt="Freya"></div></div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">sorcerer</span>
+                    <span class="sender-tag">admin</span>
+                </div>
+                <div class="bubble-content">Position Status
+Take Profit 1  From  Short Signal
+at Price : 57.849 in USOUSD</div>
+                <div class="meta">08:31</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Auto-scroll to the bottom on load to mimic the video state
+    const chatArea = document.getElementById('chatArea');
+    chatArea.scrollTop = chatArea.scrollHeight;
+</script>
+
+</body>
+</html>

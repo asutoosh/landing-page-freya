@@ -9,7 +9,31 @@ document.addEventListener('DOMContentLoaded', function() {
     initModal();
     initChatPreview();
     initSpotlight();
+    initHeaderScroll();
 });
+
+// ============================================
+// HEADER SCROLL EFFECT
+// ============================================
+function initHeaderScroll() {
+    const header = document.querySelector('.header');
+    if (!header) return;
+    
+    const scrollThreshold = window.innerHeight; // One viewport height
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY >= scrollThreshold) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+    
+    // Check initial state
+    if (window.scrollY >= scrollThreshold) {
+        header.classList.add('scrolled');
+    }
+}
 
 // ============================================
 // SPOTLIGHT EFFECT
@@ -108,26 +132,7 @@ function initSmoothScroll() {
     });
 }
 
-// ============================================
-// HEADER SCROLL EFFECT
-// ============================================
-
-let lastScroll = 0;
-const header = document.querySelector('.header');
-
-window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
-    
-    if (currentScroll > 100) {
-        header.style.background = 'rgba(13, 13, 13, 0.95)';
-        header.style.backdropFilter = 'blur(10px)';
-    } else {
-        header.style.background = 'var(--bg-primary)';
-        header.style.backdropFilter = 'none';
-    }
-    
-    lastScroll = currentScroll;
-});
+// This duplicate header scroll effect has been removed - using initHeaderScroll() instead
 
 // ============================================
 // TYPING ANIMATION FOR SIGNALS (optional enhancement)
@@ -347,8 +352,138 @@ function initChatPreview() {
                     targetView.style.opacity = '1';
                     targetView.style.transform = 'translateY(0)';
                 });
+
+                // Scroll to bottom logic
+                const messagesArea = targetView.querySelector('.chat-messages-area');
+                if (messagesArea) {
+                     // Use setTimeout to ensure the view is rendered and height is calculated
+                    setTimeout(() => {
+                        messagesArea.scrollTop = messagesArea.scrollHeight;
+                    }, 50);
+                }
             }
         });
+    });
+}
+
+// ============================================
+// GALLERY SCROLL FUNCTIONALITY
+// ============================================
+
+function initGalleryScroll() {
+    const galleryGrid = document.querySelector('.gallery-grid');
+    const prevBtn = document.querySelector('.scroll-arrow.prev');
+    const nextBtn = document.querySelector('.scroll-arrow.next');
+
+    // These might only exist on mobile or if HTML is present
+    if (!galleryGrid || !prevBtn || !nextBtn) return;
+
+    // Scroll amount (card width + gap which is approx 300-350 on mobile)
+    const scrollAmount = 320; 
+
+    prevBtn.addEventListener('click', () => {
+        galleryGrid.scrollBy({
+            left: -scrollAmount,
+            behavior: 'smooth'
+        });
+    });
+
+    nextBtn.addEventListener('click', () => {
+        galleryGrid.scrollBy({
+            left: scrollAmount,
+            behavior: 'smooth'
+        });
+    });
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    initGalleryScroll();
+    initModal();
+    initChatPreview();
+    
+    // Auto-scroll Results Preview
+    const resultsPreview = document.getElementById('resultsLivePreview');
+    if (resultsPreview) {
+        setTimeout(() => {
+            resultsPreview.scrollTop = resultsPreview.scrollHeight;
+        }, 100);
+    }
+    
+    // Auto-scroll Gallery on Mobile
+    initMobileGalleryAutoScroll();
+});
+
+// ============================================
+// MOBILE GALLERY AUTO-SCROLL (CAROUSEL)
+// ============================================
+
+function initMobileGalleryAutoScroll() {
+    const galleryGrid = document.querySelector('.gallery-grid');
+    if (!galleryGrid) return;
+    
+    // Only run on mobile (screen width <= 768px)
+    const isMobile = () => window.innerWidth <= 768;
+    
+    if (!isMobile()) return;
+    
+    const panels = galleryGrid.querySelectorAll('.mobile-mockup');
+    if (panels.length < 2) return;
+    
+    let currentPanel = 0;
+    let autoScrollTimeout;
+    let hasCompletedOneCycle = false;
+    let userInteracted = false;
+    
+    function scrollToPanel(index) {
+        if (hasCompletedOneCycle || userInteracted) return;
+        
+        const panel = panels[index];
+        if (panel) {
+            const panelLeft = panel.offsetLeft;
+            const containerLeft = galleryGrid.offsetLeft;
+            const scrollPosition = panelLeft - containerLeft;
+            
+            galleryGrid.scrollTo({
+                left: scrollPosition,
+                behavior: 'smooth'
+            });
+        }
+    }
+    
+    function scrollToNextPanel() {
+        if (!isMobile() || hasCompletedOneCycle || userInteracted) {
+            return;
+        }
+        
+        currentPanel++;
+        
+        if (currentPanel >= panels.length) {
+            // One cycle completed
+            hasCompletedOneCycle = true;
+            return;
+        }
+        
+        scrollToPanel(currentPanel);
+        
+        // Schedule next scroll with 2 second delay (brief pause between panels)
+        autoScrollTimeout = setTimeout(scrollToNextPanel, 2000);
+    }
+    
+    // Start after a short delay to let the page load
+    setTimeout(() => {
+        if (isMobile()) {
+            // Start scrolling to panel 1 after 2 seconds
+            autoScrollTimeout = setTimeout(scrollToNextPanel, 2000);
+        }
+    }, 1000);
+    
+    // Stop auto-scroll if user manually scrolls
+    galleryGrid.addEventListener('touchstart', () => {
+        userInteracted = true;
+        if (autoScrollTimeout) {
+            clearTimeout(autoScrollTimeout);
+        }
     });
 }
 

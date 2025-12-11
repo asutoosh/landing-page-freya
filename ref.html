@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews Chat Replica</title>
+    <style>
+        /* --- RESET & BASICS --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0e1621; /* Deep dark background */
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* --- CONTAINER --- */
+        .chat-container {
+            width: 100%;
+            max-width: 480px; /* Mobile width */
+            background-color: #0e1621;
+            background-image: url('https://web.telegram.org/img/bg_0.png'); /* Subtle pattern if available, else fallback color */
+            background-blend-mode: overlay;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            height: 100%;
+            border-left: 1px solid #1c242f;
+            border-right: 1px solid #1c242f;
+        }
+
+        /* --- HEADER --- */
+        .header {
+            background-color: #17212b;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #000;
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        .header-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .header-subtitle {
+            font-size: 13px;
+            color: #7f91a4;
+        }
+
+        /* --- PINNED MESSAGE --- */
+        .pinned-bar {
+            background-color: #17212b;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #0e1621;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .pinned-line {
+            width: 2px;
+            height: 28px;
+            background-color: #5288c1;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+
+        .pinned-content h4 {
+            color: #5288c1;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .pinned-content p {
+            color: #fff;
+            font-size: 13px;
+        }
+
+        /* --- CHAT AREA --- */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        /* Scrollbar customization */
+        .chat-area::-webkit-scrollbar {
+            width: 4px;
+        }
+        .chat-area::-webkit-scrollbar-thumb {
+            background: #2b3642; 
+        }
+
+        /* --- DATE DIVIDERS --- */
+        .date-divider {
+            align-self: center;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 15px 0;
+            backdrop-filter: blur(2px);
+        }
+
+        /* --- MESSAGE ROW --- */
+        .message-row {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 8px;
+            max-width: 90%;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            background-color: #5ea6e5;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .bubble {
+            background-color: #182533;
+            padding: 8px 10px 8px 10px;
+            border-radius: 12px 12px 12px 0; /* Tail bottom left */
+            position: relative;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+            font-size: 14.5px;
+            line-height: 1.4;
+            color: white;
+            word-wrap: break-word;
+        }
+
+        /* Image/Table Mockup Container */
+        .image-container {
+            background-color: #1b212d;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 5px;
+            border: 1px solid #28303a;
+        }
+        
+        /* Simulating the Trade Summary Table Image */
+        .trade-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+            font-family: monospace;
+            background: #222;
+        }
+        .trade-table th {
+            background-color: #333;
+            color: #ddd;
+            padding: 4px;
+            text-align: left;
+        }
+        .trade-table td {
+            border-bottom: 1px solid #333;
+            padding: 4px;
+            color: #ccc;
+        }
+        .trade-title {
+            background: #2b2b2b;
+            color: #fff;
+            padding: 5px;
+            font-size: 11px;
+            font-weight: bold;
+            border-bottom: 1px solid #444;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .icon-trade {
+            color: #d9534f; /* Reddish icon color */
+        }
+
+        /* Text Content */
+        .bubble p {
+            margin-bottom: 8px;
+        }
+
+        .bubble a {
+            color: #64b5ef;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        /* Link Preview Box */
+        .link-preview {
+            border-left: 2px solid #5288c1;
+            padding-left: 8px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+        .link-title {
+            color: #5288c1;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .link-desc {
+            font-size: 13px;
+            color: #cfd4d9;
+        }
+
+        /* Time & Status */
+        .meta {
+            float: right;
+            margin-left: 10px;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #6c7883;
+            position: relative;
+            top: 4px;
+        }
+
+        /* Double Tick SVG */
+        .ticks {
+            width: 14px;
+            height: 14px;
+        }
+        .ticks path {
+            fill: #4fabeb; /* Read color */
+        }
+        .ticks.unread path {
+            fill: #6c7883;
+        }
+
+        /* --- SPECIFIC HELPERS --- */
+        .code-block {
+            font-family: monospace;
+            background: #111;
+            padding: 5px;
+            border-radius: 4px;
+            color: #a9b7c6;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    
+    <div class="header">
+        <div style="margin-right: 15px; font-size: 20px;">←</div>
+        <div class="header-info">
+            <div class="header-title">Reviews</div>
+            <div class="header-subtitle">12 messages</div>
+        </div>
+        <div style="margin-left: auto; width: 30px; height: 30px; border-radius: 50%; overflow: hidden;">
+            </div>
+    </div>
+
+    <div class="pinned-bar">
+        <div class="pinned-line"></div>
+        <div class="pinned-content">
+            <h4>Pinned message</h4>
+            <p>Photo</p>
+        </div>
+        <div style="margin-left: auto; color: #7f91a4;">✕</div>
+    </div>
+
+    <div class="chat-area" id="chatArea">
+
+        <div class="date-divider">December 2</div>
+
+        <div class="message-row">
+            <div class="avatar">F</div>
+            <div class="bubble">
+                <div class="image-container">
+                    <div class="trade-title"><span class="icon-trade">📊</span> Trade Summary by Date</div>
+                    <table class="trade-table">
+                        <tr><th>Date</th><th>Total</th><th>TP1</th><th>TP2</th><th>TP3</th><th>TP4</th><th>SL</th></tr>
+                        <tr><td>02-12-2025</td><td>17</td><td>8</td><td>8</td><td>5</td><td>3</td><td>1</td></tr>
+                    </table>
+                </div>
+                <div class="meta">
+                    <span class="time"></span> </div>
+            </div>
+        </div>
+
+        <div class="date-divider">December 3</div>
+
+        <div class="message-row">
+            <div class="avatar">F</div>
+            <div class="bubble">
+                <div class="image-container">
+                    <div class="trade-title"><span class="icon-trade">📊</span> Trade Summary by Date</div>
+                    <table class="trade-table">
+                        <tr><th>Date</th><th>Total</th><th>TP1</th><th>TP2</th><th>TP3</th><th>TP4</th><th>SL</th></tr>
+                        <tr><td>03-12-2025</td><td>17</td><td>8</td><td>8</td><td>6</td><td>4</td><td>4</td></tr>
+                    </table>
+                </div>
+                <div class="meta">
+                    <span class="time">19:39</span>
+                    <svg class="ticks" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="date-divider">December 4</div>
+
+        <div class="message-row">
+            <div class="avatar">F</div>
+            <div class="bubble">
+                <p>To clarify: time zones and day/night cycles apply to us, not to the algorithms. Some trades continue into the next day or even for two days, so their TPs may be hit on later days. The screenshots I've been sharing don't fully reflect that.</p>
+                <p>Here's how the calculation currently works:</p>
+                <p>For 3 Dec, I collected all messages from 12:00 AM UTC until 7:39 PM and fed them to GPT. GPT only reads the text and counts occurrences, for example:</p>
+                <div class="code-block">TP1 hit 8 times
+TP2 hit 8 times
+TP3 hit 6 times
+TP4 hit 4 times
+
+SL hit 4 times</div>
+                <p>Based on that, it generates the table.<br>But here's what actually happens:</p>
+                <div class="code-block">Out of 17 trades:
+SL: 4
+TP1: 8
+TP2: 8 (all TP1 trades continued to TP2)
+TP3: 6 (2 trades didn't reach TP3)
+TP4: 4 (2 trades didn't reach TP4)</div>
+                <p>This means the calculations don't add up to 17 trades (4 + 8 = 17).<br>So what about the remaining five?<br>👉 Five trades are still running.<br>👉 Some trades hit their TPs on the next day, not the day of the message.</p>
+                <p>Because of this, the result screenshots I've been sending aren't reliable. I need to think of a better way to capture and evaluate the data.</p>
+                <div class="meta">
+                    <span class="time">09:02</span>
+                    <svg class="ticks" viewBox="0 0 24 24"><path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar">F</div>
+            <div class="bubble">
+                <p>So made a Doc - showing performance of last 3 days : If you have a brain, and its working, then have a read:</p>
+                <a href="https://docs.google.com/document/d/1PvFRjjB63vnI6i5LjCt0HSdqT4olTzKupcAF2vnVe3Y/edit?tab=t.0"target="_blank">https://docs.google.com/document/d/1PvFRjjB63vnl6l5ljC10HSdqt4oITzKupcAF2VnVe3Y/edit?tab=t.0</a>
+                <div class="link-preview">
+                    <div class="link-title">Google Docs</div>
+                    <div class="link-desc">Performance Review - Dec 2025</div>
+                </div>
+                <div class="meta">
+                    <span class="time">10:57</span>
+                    <svg class="ticks" viewBox="0 0 24 24"><path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="date-divider">December 5</div>
+
+        <div class="message-row">
+            <div class="avatar">F</div>
+            <div class="bubble">
+                <p>a bit late with new type of fixed review style</p>
+                <div class="image-container" style="margin-top: 5px;">
+                     <div class="trade-title"><span class="icon-trade">📊</span> Trade Summary by Date</div>
+                    <table class="trade-table">
+                        <tr><th>Date</th><th>Total</th><th>TP1</th><th>TP2</th><th>TP3</th><th>TP4</th><th>SL</th></tr>
+                        <tr><td>05-12-2025</td><td>30</td><td>13</td><td>11</td><td>7</td><td>5</td><td>2</td></tr>
+                    </table>
+                </div>
+                <div class="meta">
+                    <span class="time">03:12</span>
+                    <svg class="ticks" viewBox="0 0 24 24"><path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/></svg>
+                </div>
+            </div>
+        </div>
+
+         <div class="date-divider">December 9</div>
+
+         <div class="message-row">
+            <div class="avatar">F</div>
+            <div class="bubble">
+                <p>WEEKEND - NO - TRADE - DAYS</p>
+                 <div class="image-container" style="margin-top: 5px;">
+                     <div class="trade-title"><span class="icon-trade">📊</span> Trade Summary by Date</div>
+                    <table class="trade-table">
+                        <tr><th>Date</th><th>Total</th><th>TP1</th><th>TP2</th><th>TP3</th><th>TP4</th><th>SL</th></tr>
+                        <tr><td>08-12-2025</td><td>15</td><td>12</td><td>6</td><td>3</td><td>0</td><td>0</td></tr>
+                    </table>
+                </div>
+                <div class="meta">
+                    <span class="time">06:39</span>
+                    <svg class="ticks" viewBox="0 0 24 24"><path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar">F</div>
+            <div class="bubble">
+                <p>Sorry for the delay-this is for Monday.</p>
+                <div class="meta">
+                    <span class="time">06:40</span>
+                    <svg class="ticks" viewBox="0 0 24 24"><path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar">F</div>
+            <div class="bubble">
+                <p>Many trades were missed today due to a system error. I've been debugging it since last night and will fix it soon.</p>
+                <div class="meta">
+                    <span class="time">06:41</span>
+                    <svg class="ticks" viewBox="0 0 24 24"><path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar">F</div>
+            <div class="bubble">
+                <p>cant update today ! as Sorcerer was down for a long time</p>
+                <div class="meta">
+                    <span class="time">20:21</span>
+                    <svg class="ticks" viewBox="0 0 24 24"><path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar">F</div>
+            <div class="bubble">
+                <p>Now fully restored!</p>
+                <div class="meta">
+                    <span class="time">20:21</span>
+                    <svg class="ticks" viewBox="0 0 24 24"><path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/></svg>
+                </div>
+            </div>
+        </div>
+
+         <div class="date-divider">December 10</div>
+
+         <div class="message-row">
+            <div class="avatar">F</div>
+            <div class="bubble">
+                <p>Here is your Trade Summary for 10-12-2025, formatted exactly like the style shown in your image.</p>
+                <div class="image-container" style="margin-top: 5px;">
+                     <div class="trade-title"><span class="icon-trade">📊</span> Trade Summary by Date</div>
+                    <table class="trade-table">
+                        <tr><th>Date</th><th>Total</th><th>TP1</th><th>TP2</th><th>TP3</th><th>TP4</th><th>SL</th></tr>
+                        <tr><td>10-12-2025</td><td>30</td><td>10</td><td>5</td><td>5</td><td>2</td><td>0</td></tr>
+                    </table>
+                </div>
+                <p style="font-size: 13px; color: #aaa;">▼ Breakdown (based on all "Position Status" hits you provided)</p>
+                <div class="meta">
+                    <span class="time">09:12</span>
+                    <svg class="ticks" viewBox="0 0 24 24"><path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/></svg>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Scroll to bottom immediately to mimic the video state
+    const chatArea = document.getElementById('chatArea');
+    chatArea.scrollTop = chatArea.scrollHeight;
+</script>
+
+</body>
+</html>
