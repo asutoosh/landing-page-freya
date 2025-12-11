@@ -6,7 +6,26 @@ document.addEventListener('DOMContentLoaded', function() {
     initFAQ();
     initScrollReveal();
     initSmoothScroll();
+    initModal();
+    initChatPreview();
+    initSpotlight();
 });
+
+// ============================================
+// SPOTLIGHT EFFECT
+// ============================================
+function initSpotlight() {
+    const grid = document.querySelector('.grid-background');
+    if (!grid) return;
+
+    document.addEventListener('mousemove', (e) => {
+        const x = e.clientX;
+        const y = e.clientY;
+        
+        grid.style.setProperty('--mouse-x', `${x}px`);
+        grid.style.setProperty('--mouse-y', `${y}px`);
+    });
+}
 
 // ============================================
 // FAQ ACCORDION
@@ -233,4 +252,103 @@ document.querySelectorAll('img[data-src]').forEach(img => {
 });
 
 console.log('🚀 Freya Trades loaded successfully!');
+
+// ============================================
+// MODAL FUNCTIONALITY
+// ============================================
+
+function initModal() {
+    const modal = document.getElementById('platform-modal');
+    if (!modal) return;
+    
+    const triggerButtons = document.querySelectorAll('.js-open-modal');
+    const closeBtn = document.querySelector('.modal-close');
+    
+    // Function to open modal
+    const openModal = (e) => {
+        e.preventDefault();
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    };
+
+    // Function to close modal
+    const closeModal = () => {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+
+    triggerButtons.forEach(btn => {
+        btn.addEventListener('click', openModal);
+    });
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
+    }
+
+    // Close on click outside
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+    
+    // Esc key to close
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    // Also close if clicking on the actual platform buttons (optional, but good UX if they open in new tab)
+    const platformBtns = modal.querySelectorAll('.platform-btn');
+    platformBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Small delay to allow visual feedback before closing
+            setTimeout(closeModal, 100);
+        });
+    });
+}
+
+// ============================================
+// CHAT PREVIEW INTERACTIVITY
+// ============================================
+
+function initChatPreview() {
+    const channelItems = document.querySelectorAll('.channel-item');
+    const chatViews = document.querySelectorAll('.chat-view');
+
+    channelItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // 1. Remove active class from all items
+            channelItems.forEach(i => i.classList.remove('active'));
+            
+            // 2. Add active class to clicked item
+            item.classList.add('active');
+            
+            // 3. Get target view ID
+            const targetId = item.getAttribute('data-target');
+            
+            // 4. Hide all views
+            chatViews.forEach(view => {
+                view.classList.remove('active-view');
+            });
+            
+            // 5. Show target view
+            const targetView = document.getElementById(targetId);
+            if (targetView) {
+                targetView.classList.add('active-view');
+                
+                // Add fade-in animation effect
+                targetView.style.opacity = '0';
+                targetView.style.transform = 'translateY(10px)';
+                
+                requestAnimationFrame(() => {
+                    targetView.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    targetView.style.opacity = '1';
+                    targetView.style.transform = 'translateY(0)';
+                });
+            }
+        });
+    });
+}
 
