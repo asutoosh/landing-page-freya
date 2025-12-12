@@ -51,20 +51,53 @@ jobs:
         }
         
         async function deploy() {
-          const client = new ftp.Client();
+          const host = process.env.FTP_HOST;
+          const username = process.env.FTP_USERNAME;
+          const password = process.env.FTP_PASSWORD;
+          
+          if (!host || !username || !password) {
+            console.error('Missing FTP credentials!');
+            console.error('FTP_HOST:', host ? '***' : 'NOT SET');
+            console.error('FTP_USERNAME:', username ? '***' : 'NOT SET');
+            console.error('FTP_PASSWORD:', password ? '***' : 'NOT SET');
+            process.exit(1);
+          }
+          
+          console.log('FTP Host:', host);
+          console.log('FTP Username:', username);
+          console.log('Connecting to FTP server...');
+          
+          let client = new ftp.Client();
           client.ftp.verbose = true;
           
           try {
-            console.log('Connecting to FTP server...');
-            await client.access({
-              host: process.env.FTP_HOST,
-              user: process.env.FTP_USERNAME,
-              password: process.env.FTP_PASSWORD,
-              secure: true, // Use FTPS
-              secureOptions: {
-                rejectUnauthorized: false // Allow self-signed certificates
-              }
-            });
+            // Try FTPS first, then fall back to regular FTP
+            try {
+              console.log('Attempting FTPS connection...');
+              await client.access({
+                host: host,
+                user: username,
+                password: password,
+                secure: true,
+                secureOptions: {
+                  rejectUnauthorized: false
+                }
+              });
+              console.log('Connected via FTPS');
+            } catch (ftpsError) {
+              console.log('FTPS failed, trying regular FTP...');
+              console.log('FTPS error:', ftpsError.message);
+              client.close();
+              client = new ftp.Client();
+              client.ftp.verbose = true;
+              await client.access({
+                host: host,
+                user: username,
+                password: password,
+                secure: false
+              });
+              console.log('Connected via FTP');
+            }
             
             console.log('Connected successfully');
             console.log('Uploading files...');
@@ -93,7 +126,11 @@ jobs:
           } catch (err) {
             console.error('Deployment failed:', err.message);
             console.error(err);
-            client.close();
+            try {
+              client.close();
+            } catch (e) {
+              // Ignore close errors
+            }
             process.exit(1);
           }
         }
