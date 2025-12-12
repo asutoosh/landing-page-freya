@@ -19,19 +19,17 @@ jobs:
 
     - name: Create package.json and install dependencies
       run: |
-        echo '{"dependencies":{"ssh2-sftp-client":"^10.0.3"}}' > package.json
+        echo '{"dependencies":{"basic-ftp":"^5.0.3"}}' > package.json
         npm install
 
     - name: Create deploy script
       run: |
         cat > deploy.js << 'DEPLOY_SCRIPT'
-        const Client = require('ssh2-sftp-client');
+        const ftp = require('basic-ftp');
         const fs = require('fs');
         const path = require('path');
         
-        const sftp = new Client();
-        
-        async function uploadDirectory(localDir, remoteDir) {
+        async function uploadDirectory(client, localDir, remoteDir) {
           const files = fs.readdirSync(localDir);
           for (const file of files) {
             const localPath = path.join(localDir, file);
@@ -39,50 +37,63 @@ jobs:
             const stat = fs.statSync(localPath);
             
             if (stat.isDirectory()) {
-              await sftp.mkdir(remotePath, true);
-              await uploadDirectory(localPath, remotePath);
+              try {
+                await client.ensureDir(remotePath);
+              } catch (e) {
+                // Directory might already exist
+              }
+              await uploadDirectory(client, localPath, remotePath);
             } else {
-              await sftp.put(localPath, remotePath);
+              await client.uploadFrom(localPath, remotePath);
               console.log(`✓ Uploaded: ${remotePath}`);
             }
           }
         }
         
         async function deploy() {
+          const client = new ftp.Client();
+          client.ftp.verbose = true;
+          
           try {
-            console.log('Connecting to SFTP server...');
-            await sftp.connect({
+            console.log('Connecting to FTP server...');
+            await client.access({
               host: process.env.FTP_HOST,
-              username: process.env.FTP_USERNAME,
+              user: process.env.FTP_USERNAME,
               password: process.env.FTP_PASSWORD,
-              port: 22
+              secure: true, // Use FTPS
+              secureOptions: {
+                rejectUnauthorized: false // Allow self-signed certificates
+              }
             });
             
             console.log('Connected successfully');
             console.log('Uploading files...');
             
+            // Change to public_html directory
+            await client.cd('/public_html');
+            
             // Upload individual files
             const files = ['index.html', 'pre.html', 'ref.html', 'script.js', 'styles.css'];
             for (const file of files) {
               if (fs.existsSync(file)) {
-                await sftp.put(file, `/public_html/${file}`);
+                await client.uploadFrom(file, file);
                 console.log(`✓ Uploaded: ${file}`);
               }
             }
             
             // Upload assets directory
             if (fs.existsSync('assets')) {
-              await sftp.mkdir('/public_html/assets', true);
-              await uploadDirectory('assets', '/public_html/assets');
+              await uploadDirectory(client, 'assets', 'assets');
               console.log('✓ Uploaded: assets/');
             }
             
-            await sftp.end();
+            client.close();
             console.log('Deployment completed successfully!');
             process.exit(0);
           } catch (err) {
             console.error('Deployment failed:', err.message);
             console.error(err);
+            client.close();
             process.exit(1);
           }
         }
@@ -90,7 +101,7 @@ jobs:
         deploy();
         DEPLOY_SCRIPT
 
-    - name: SFTP Deploy
+    - name: FTP Deploy
       env:
         FTP_HOST: ${{ vars.FTP_HOST }}
         FTP_USERNAME: ${{ vars.FTP_USERNAME }}
