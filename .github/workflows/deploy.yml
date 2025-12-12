@@ -12,17 +12,88 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Install lftp
-      run: sudo apt-get update && sudo apt-get install -y lftp
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Create package.json and install dependencies
+      run: |
+        echo '{"dependencies":{"ssh2-sftp-client":"^10.0.3"}}' > package.json
+        npm install
+
+    - name: Create deploy script
+      run: |
+        cat > deploy.js << 'DEPLOY_SCRIPT'
+        const Client = require('ssh2-sftp-client');
+        const fs = require('fs');
+        const path = require('path');
+        
+        const sftp = new Client();
+        
+        async function uploadDirectory(localDir, remoteDir) {
+          const files = fs.readdirSync(localDir);
+          for (const file of files) {
+            const localPath = path.join(localDir, file);
+            const remotePath = path.join(remoteDir, file).replace(/\\/g, '/');
+            const stat = fs.statSync(localPath);
+            
+            if (stat.isDirectory()) {
+              await sftp.mkdir(remotePath, true);
+              await uploadDirectory(localPath, remotePath);
+            } else {
+              await sftp.put(localPath, remotePath);
+              console.log(`✓ Uploaded: ${remotePath}`);
+            }
+          }
+        }
+        
+        async function deploy() {
+          try {
+            console.log('Connecting to SFTP server...');
+            await sftp.connect({
+              host: process.env.FTP_HOST,
+              username: process.env.FTP_USERNAME,
+              password: process.env.FTP_PASSWORD,
+              port: 22
+            });
+            
+            console.log('Connected successfully');
+            console.log('Uploading files...');
+            
+            // Upload individual files
+            const files = ['index.html', 'pre.html', 'ref.html', 'script.js', 'styles.css'];
+            for (const file of files) {
+              if (fs.existsSync(file)) {
+                await sftp.put(file, `/public_html/${file}`);
+                console.log(`✓ Uploaded: ${file}`);
+              }
+            }
+            
+            // Upload assets directory
+            if (fs.existsSync('assets')) {
+              await sftp.mkdir('/public_html/assets', true);
+              await uploadDirectory('assets', '/public_html/assets');
+              console.log('✓ Uploaded: assets/');
+            }
+            
+            await sftp.end();
+            console.log('Deployment completed successfully!');
+            process.exit(0);
+          } catch (err) {
+            console.error('Deployment failed:', err.message);
+            console.error(err);
+            process.exit(1);
+          }
+        }
+        
+        deploy();
+        DEPLOY_SCRIPT
 
     - name: SFTP Deploy
-      run: |
-        lftp -c "
-        set sftp:auto-confirm yes;
-        set sftp:connect-program 'ssh -a -x';
-        open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} -p 22 sftp://${{ secrets.FTP_HOST }};
-        cd /public_html;
-        mirror -R --delete --verbose --exclude-glob .git* --exclude-glob .github;
-        quit;
-        "
+      env:
+        FTP_HOST: ${{ secrets.FTP_HOST }}
+        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+      run: node deploy.js
 
