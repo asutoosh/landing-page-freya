@@ -12,11 +12,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: FTP Deploy
-      uses: SamKirkland/FTP-Deploy-Action@4.3.0
-      with:
-        server: ftp.yourdomain.com
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /public_html/
+    - name: Install lftp
+      run: sudo apt-get update && sudo apt-get install -y lftp
+
+    - name: SFTP Deploy
+      run: |
+        lftp -c "
+        set sftp:auto-confirm yes;
+        set sftp:connect-program 'ssh -a -x';
+        open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} -p 22 sftp://${{ secrets.FTP_HOST }};
+        cd /public_html;
+        mirror -R --delete --verbose --exclude-glob .git* --exclude-glob .github;
+        quit;
+        "
 
