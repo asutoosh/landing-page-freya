@@ -82,11 +82,36 @@ jobs:
             });
             console.log('Connected successfully via FTP');
             
-            console.log('Connected successfully');
-            console.log('Uploading files...');
+            // Check current directory
+            const pwd = await client.pwd();
+            console.log('Current directory:', pwd);
             
-            // Change to public_html directory
-            await client.cd('/public_html');
+            // List current directory to see what's available
+            try {
+              const list = await client.list();
+              console.log('Directory contents:', list.map(item => `${item.type === 1 ? '[DIR]' : '[FILE]'} ${item.name}`).join(', '));
+            } catch (e) {
+              console.log('Could not list directory');
+            }
+            
+            // Try to change to public_html directory
+            // On Hostinger, you might already be in public_html or need to navigate to it
+            try {
+              await client.cd('public_html');
+              console.log('Changed to public_html directory');
+            } catch (cdError) {
+              console.log('public_html directory not found. Trying absolute path...');
+              try {
+                await client.cd('/public_html');
+                console.log('Changed to /public_html directory');
+              } catch (absError) {
+                console.log('Absolute path also failed. You may already be in the correct directory.');
+                console.log('Uploading to current directory:', await client.pwd());
+              }
+            }
+            
+            console.log('Final upload directory:', await client.pwd());
+            console.log('Uploading files...');
             
             // Upload individual files
             const files = ['index.html', 'pre.html', 'ref.html', 'script.js', 'styles.css'];
