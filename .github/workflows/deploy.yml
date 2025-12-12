@@ -71,33 +71,16 @@ jobs:
           client.ftp.verbose = true;
           
           try {
-            // Try FTPS first, then fall back to regular FTP
-            try {
-              console.log('Attempting FTPS connection...');
-              await client.access({
-                host: host,
-                user: username,
-                password: password,
-                secure: true,
-                secureOptions: {
-                  rejectUnauthorized: false
-                }
-              });
-              console.log('Connected via FTPS');
-            } catch (ftpsError) {
-              console.log('FTPS failed, trying regular FTP...');
-              console.log('FTPS error:', ftpsError.message);
-              client.close();
-              client = new ftp.Client();
-              client.ftp.verbose = true;
-              await client.access({
-                host: host,
-                user: username,
-                password: password,
-                secure: false
-              });
-              console.log('Connected via FTP');
-            }
+            // Hostinger recommends using plain FTP (not FTPS) on port 21
+            console.log('Connecting via plain FTP (Hostinger recommended)...');
+            await client.access({
+              host: host,
+              user: username,
+              password: password,
+              port: 21,
+              secure: false // Plain FTP as recommended by Hostinger
+            });
+            console.log('Connected successfully via FTP');
             
             console.log('Connected successfully');
             console.log('Uploading files...');
