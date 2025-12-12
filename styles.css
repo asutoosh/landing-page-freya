@@ -328,6 +328,44 @@ img {
     font-size: 0.95rem;
 }
 
+.chat-images-section {
+    padding: 3rem 2rem;
+    background: transparent;
+}
+
+.chat-images-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    justify-items: center;
+}
+
+.chat-image-box {
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid var(--border-subtle);
+    padding: 1rem;
+    overflow: hidden;
+    transition: var(--transition-medium);
+    max-width: 400px;
+    width: 100%;
+}
+
+.chat-image-box:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent-teal);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.chat-image-box img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+}
+
 .funding-section {
     padding: 3rem 2rem;
     background: transparent;
@@ -1554,18 +1592,18 @@ img {
     0%, 100% {
         box-shadow: 
             0 20px 60px rgba(0, 0, 0, 0.6),
-            0 0 40px rgba(168, 85, 247, 0.4),
-            0 0 80px rgba(168, 85, 247, 0.2),
-            0 0 120px rgba(245, 213, 71, 0.1),
-            inset 0 0 20px rgba(168, 85, 247, 0.1);
+            0 0 25px rgba(168, 85, 247, 0.25),
+            0 0 50px rgba(168, 85, 247, 0.12),
+            0 0 80px rgba(245, 213, 71, 0.06),
+            inset 0 0 15px rgba(168, 85, 247, 0.06);
     }
     50% {
         box-shadow: 
             0 20px 60px rgba(0, 0, 0, 0.6),
-            0 0 50px rgba(168, 85, 247, 0.5),
-            0 0 100px rgba(168, 85, 247, 0.3),
-            0 0 140px rgba(245, 213, 71, 0.15),
-            inset 0 0 25px rgba(168, 85, 247, 0.15);
+            0 0 30px rgba(168, 85, 247, 0.3),
+            0 0 60px rgba(168, 85, 247, 0.15),
+            0 0 90px rgba(245, 213, 71, 0.08),
+            inset 0 0 18px rgba(168, 85, 247, 0.08);
     }
 }
 
@@ -1672,19 +1710,19 @@ img {
     border-width: 2px;
     box-shadow: 
         0 20px 60px rgba(0, 0, 0, 0.6),
-        0 0 40px rgba(168, 85, 247, 0.4),
-        0 0 80px rgba(168, 85, 247, 0.2),
-        0 0 120px rgba(245, 213, 71, 0.1),
-        inset 0 0 20px rgba(168, 85, 247, 0.1),
-        inset 0 1px 0 rgba(245, 213, 71, 0.2);
-    filter: brightness(1.15) contrast(1.1);
+        0 0 25px rgba(168, 85, 247, 0.25),
+        0 0 50px rgba(168, 85, 247, 0.12),
+        0 0 80px rgba(245, 213, 71, 0.06),
+        inset 0 0 15px rgba(168, 85, 247, 0.06),
+        inset 0 1px 0 rgba(245, 213, 71, 0.15);
+    filter: brightness(1.05) contrast(1.05);
     opacity: 1;
     z-index: 10;
     animation: premiumGlow 3s ease-in-out infinite;
     /* Enhanced inner glow */
     background-image: 
-        radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.15) 0%, transparent 60%),
-        radial-gradient(circle at 50% 100%, rgba(245, 213, 71, 0.08) 0%, transparent 50%);
+        radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 50% 100%, rgba(245, 213, 71, 0.04) 0%, transparent 50%);
 }
 
 /* Optional: Subtle float animation on hover (uncomment if desired) */
@@ -1700,9 +1738,9 @@ img {
 /* Dimmed non-hovered panels */
 .gallery-grid:hover .mobile-mockup:not(:hover) {
     transform: scale(0.95);
-    filter: brightness(0.4) blur(2px);
-    opacity: 0.6;
-    border-color: rgba(255, 255, 255, 0.05);
+    filter: brightness(0.75) blur(1px);
+    opacity: 0.85;
+    border-color: rgba(255, 255, 255, 0.08);
     border-width: 1px;
     box-shadow: 
         0 2px 12px rgba(0, 0, 0, 0.3),
@@ -1751,12 +1789,12 @@ img {
 
 /* Enhanced content brightness on hover */
 .gallery-grid:hover .mobile-mockup:hover .mockup-content {
-    filter: brightness(1.1);
+    filter: brightness(1.05);
 }
 
 /* Dimmed content for non-hovered panels */
 .gallery-grid:hover .mobile-mockup:not(:hover) .mockup-content {
-    filter: brightness(0.5);
+    filter: brightness(0.8);
 }
 
 .mockup-content.padding-0 {
@@ -2074,6 +2112,17 @@ img {
 
 
 @media (max-width: 768px) {
+    /* Chat images responsive */
+    .chat-images-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 0 1rem;
+    }
+    
+    .chat-image-box {
+        max-width: 100%;
+    }
+
     /* Horizontal scroll for Funding section cards */
     .funding-container {
         display: flex !important;
