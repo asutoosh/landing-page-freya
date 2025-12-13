@@ -10,7 +10,131 @@ document.addEventListener('DOMContentLoaded', function() {
     initChatPreview();
     initSpotlight();
     initHeaderScroll();
+    initAnalyticsTracking();
 });
+
+// ============================================
+// ANALYTICS TRACKING HELPER
+// ============================================
+
+/**
+ * Universal analytics tracking function
+ * Works with both Google Analytics 4 (gtag) and Google Tag Manager (dataLayer)
+ */
+function trackEvent(eventName, eventParams = {}) {
+    // Track with Google Analytics 4 (gtag)
+    if (typeof gtag !== 'undefined') {
+        gtag('event', eventName, eventParams);
+    }
+    
+    // Track with Google Tag Manager (dataLayer)
+    if (typeof window.dataLayer !== 'undefined') {
+        window.dataLayer.push({
+            'event': eventName,
+            ...eventParams
+        });
+    }
+    
+    // Console log for debugging (remove in production if desired)
+    console.log('📊 Analytics Event:', eventName, eventParams);
+}
+
+/**
+ * Track button/link clicks with additional context
+ */
+function trackClick(element, eventName, additionalParams = {}) {
+    const params = {
+        button_text: element.textContent?.trim() || element.innerText?.trim() || 'Unknown',
+        button_location: element.closest('section')?.className || 'Unknown',
+        ...additionalParams
+    };
+    
+    trackEvent(eventName, params);
+}
+
+// ============================================
+// INITIALIZE ANALYTICS TRACKING
+// ============================================
+
+function initAnalyticsTracking() {
+    // Track Launch Live button clicks
+    const launchLiveBtn = document.querySelector('a.btn-demo[href*="live.freyatrades.page"]');
+    if (launchLiveBtn) {
+        launchLiveBtn.addEventListener('click', function(e) {
+            trackClick(this, 'launch_live_click', {
+                destination_url: this.href,
+                button_type: 'launch_live'
+            });
+        });
+    }
+    
+    // Track Telegram button clicks in modal
+    const telegramBtn = document.querySelector('.platform-btn.telegram-btn');
+    if (telegramBtn) {
+        telegramBtn.addEventListener('click', function(e) {
+            trackClick(this, 'telegram_click', {
+                destination_url: this.href,
+                button_type: 'telegram',
+                source: 'modal'
+            });
+        });
+    }
+    
+    // Track Whop button clicks in modal
+    const whopBtn = document.querySelector('.platform-btn.whop-btn');
+    if (whopBtn) {
+        whopBtn.addEventListener('click', function(e) {
+            trackClick(this, 'whop_click', {
+                destination_url: this.href,
+                button_type: 'whop',
+                source: 'modal'
+            });
+        });
+    }
+    
+    // Track all "Join Free Trial" button clicks (modal opens)
+    const modalTriggers = document.querySelectorAll('.js-open-modal');
+    modalTriggers.forEach((btn, index) => {
+        btn.addEventListener('click', function(e) {
+            const section = this.closest('section');
+            const sectionName = section ? (section.className || section.id || 'unknown') : 'unknown';
+            
+            trackClick(this, 'modal_open', {
+                button_type: 'join_free_trial',
+                section: sectionName,
+                button_index: index
+            });
+        });
+    });
+    
+    // Track modal closes
+    const modal = document.getElementById('platform-modal');
+    if (modal) {
+        const closeBtn = modal.querySelector('.modal-close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                trackEvent('modal_close', {
+                    close_method: 'button'
+                });
+            });
+        }
+        
+        // Track modal close on outside click
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                trackEvent('modal_close', {
+                    close_method: 'outside_click'
+                });
+            }
+        });
+    }
+    
+    // Track page view (already handled by GA4, but we can add custom data)
+    trackEvent('page_view', {
+        page_title: document.title,
+        page_location: window.location.href
+    });
+}
 
 // ============================================
 // HEADER SCROLL EFFECT
@@ -274,6 +398,11 @@ function initModal() {
         e.preventDefault();
         modal.classList.add('active');
         document.body.style.overflow = 'hidden'; // Prevent scrolling
+        
+        // Track modal open (additional tracking in initAnalyticsTracking handles button clicks)
+        trackEvent('modal_opened', {
+            trigger: e.target.textContent?.trim() || 'unknown'
+        });
     };
 
     // Function to close modal
