@@ -143,19 +143,33 @@ function initHeaderScroll() {
     const header = document.querySelector('.header');
     if (!header) return;
     
-    const scrollThreshold = window.innerHeight; // One viewport height
+    const hideStart = window.innerHeight * 0.2; // Start hiding at 20vh
+    const showStickyAt = window.innerHeight * 2; // Show sticky header at 200vh
     
     window.addEventListener('scroll', () => {
-        if (window.scrollY >= scrollThreshold) {
+        const scrollY = window.scrollY;
+        
+        if (scrollY >= showStickyAt) {
+            // After 200vh: show sticky header
+            header.classList.remove('hidden');
             header.classList.add('scrolled');
+        } else if (scrollY >= hideStart) {
+            // Between 20vh and 200vh: hide header
+            header.classList.add('hidden');
+            header.classList.remove('scrolled');
         } else {
+            // Before 20vh: show normal header
+            header.classList.remove('hidden');
             header.classList.remove('scrolled');
         }
     });
     
     // Check initial state
-    if (window.scrollY >= scrollThreshold) {
+    const scrollY = window.scrollY;
+    if (scrollY >= showStickyAt) {
         header.classList.add('scrolled');
+    } else if (scrollY >= hideStart) {
+        header.classList.add('hidden');
     }
 }
 

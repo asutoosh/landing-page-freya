@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freya Quinn</title>
+    <style>
+        /* --- RESET & BASICS --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0e1621;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* --- CONTAINER --- */
+        .chat-container {
+            width: 100%;
+            max-width: 480px;
+            background-color: #0e1621;
+            background-image: url('https://web.telegram.org/img/bg_0.png');
+            background-blend-mode: overlay;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            height: 100%;
+            border-left: 1px solid #1c242f;
+            border-right: 1px solid #1c242f;
+        }
+
+        /* --- CHAT AREA --- */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        /* Scrollbar customization */
+        .chat-area::-webkit-scrollbar {
+            width: 4px;
+        }
+        .chat-area::-webkit-scrollbar-thumb {
+            background: #2b3642; 
+        }
+
+        /* --- DATE DIVIDERS --- */
+        .date-divider {
+            align-self: center;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 15px 0;
+            backdrop-filter: blur(2px);
+        }
+
+        /* --- SERVICE MESSAGE --- */
+        .service-message {
+            align-self: center;
+            color: #7f91a4;
+            font-size: 13px;
+            margin: 5px 0;
+        }
+
+        /* --- MESSAGE ROW --- */
+        .message-row {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 8px;
+            max-width: 95%;
+        }
+
+        .avatar-col {
+            width: 48px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .bubble {
+            background-color: #182533;
+            padding: 8px 12px;
+            border-radius: 12px 12px 12px 0;
+            position: relative;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.2);
+            font-size: 14.5px;
+            line-height: 1.5;
+            color: white;
+            word-wrap: break-word;
+            max-width: 300px;
+        }
+
+        /* Header: Name */
+        .bubble-header {
+            margin-bottom: 4px;
+        }
+
+        .sender-name {
+            color: #5288c1;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Message Text */
+        .bubble p {
+            margin-bottom: 6px;
+        }
+
+        .bubble a {
+            color: #64b5ef;
+            text-decoration: none;
+        }
+
+        /* Time & Views */
+        .meta {
+            float: right;
+            margin-left: 10px;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: #6c7883;
+        }
+
+        .views {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        /* Image container */
+        .image-container {
+            background-color: #1b212d;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 8px 0;
+            border: 1px solid #28303a;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Photo placeholder */
+        .photo-placeholder {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+
+        .photo-placeholder img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    
+    <div class="chat-area" id="chatArea">
+
+        <div class="date-divider">December 13</div>
+
+        <div class="service-message">Channel created</div>
+        <div class="service-message">Channel photo updated</div>
+        
+        <!-- Channel photo -->
+        <div style="align-self: center; margin: 10px 0;">
+            <div class="photo-placeholder">
+                <img src="assets/favicon.jpg" alt="Channel Photo">
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <p>I'm taking on the $10,000 FTMO Forex Challenge and will document the journey publicly.</p>
+                <div class="meta">
+                    <span class="views">2 👁</span>
+                    <span>20:06</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <p>To join the challenge and view all trades publicly, you can access the private channel via <a href="#">@Letttttmeeeeeeiiiiiiinbot</a>.</p>
+                <div class="meta">
+                    <span class="views">2 👁</span>
+                    <span>20:07</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="date-divider">December 15</div>
+
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <p>Started the challenge</p>
+                <div class="meta">
+                    <span class="views">2 👁</span>
+                    <span>19:19</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <p>On FTMO</p>
+                <div class="meta">
+                    <span class="views">2 👁</span>
+                    <span>19:19</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image 1 -->
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <div class="image-container">
+                    <img src="assets/assets2/1.jpg" alt="FTMO Screenshot">
+                </div>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>19:20</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image 2 -->
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <div class="image-container">
+                    <img src="assets/assets2/2.jpg" alt="Trading Screenshot">
+                </div>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>19:25</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <p>In good profits now, SL at entry. Will be in better profit zone soon.</p>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>15:24</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image 3 -->
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <div class="image-container">
+                    <img src="assets/assets2/3.jpg" alt="Trading Screenshot">
+                </div>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>15:30</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <p>Opened a short- with sl 89500. Long still running.</p>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>16:42</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image 4 -->
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <div class="image-container">
+                    <img src="assets/assets2/4.jpg" alt="Trading Screenshot">
+                </div>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>16:45</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <p>Sl hit for the btc short trade, longs are in good profits now.</p>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>15:05</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image 5 -->
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <div class="image-container">
+                    <img src="assets/assets2/5.jpg" alt="Trading Screenshot">
+                </div>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>15:10</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <p>Booked half at 90k</p>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>15:08</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image 6 -->
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <div class="image-container">
+                    <img src="assets/assets2/6.jpg" alt="Trading Screenshot">
+                </div>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>15:12</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <p>Btc stopped at entry</p>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>18:46</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image 7 -->
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <div class="image-container">
+                    <img src="assets/assets2/7.jpg" alt="Trading Screenshot">
+                </div>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>18:50</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <p>1st tp booked</p>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>17:17</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image 8 -->
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <div class="image-container">
+                    <img src="assets/assets2/8.jpg" alt="Trading Screenshot">
+                </div>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>17:20</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <p>No worries, good profits for today in 1 hour!</p>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>17:28</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image 9 -->
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <div class="image-container">
+                    <img src="assets/assets2/9.jpg" alt="Trading Screenshot">
+                </div>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>17:30</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="message-row">
+            <div class="avatar-col">
+                <div class="avatar"><img src="assets/favicon.jpg" alt="F"></div>
+            </div>
+            <div class="bubble">
+                <div class="bubble-header">
+                    <span class="sender-name">Freya Quinn</span>
+                </div>
+                <p>Shorted dj30</p>
+                <div class="meta">
+                    <span class="views">1 👁</span>
+                    <span>12:05</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // Scroll to bottom on load
+    const chatArea = document.getElementById('chatArea');
+    chatArea.scrollTop = chatArea.scrollHeight;
+</script>
+
+</body>
+</html>
