@@ -510,33 +510,123 @@ function initChatPreview() {
 }
 
 // ============================================
-// GALLERY SCROLL FUNCTIONALITY
+// GALLERY SCROLL FUNCTIONALITY WITH DOTS
 // ============================================
 
 function initGalleryScroll() {
     const galleryGrid = document.querySelector('.gallery-grid');
     const prevBtn = document.querySelector('.scroll-arrow.prev');
     const nextBtn = document.querySelector('.scroll-arrow.next');
+    const dots = document.querySelectorAll('.gallery-dot');
+    const panels = document.querySelectorAll('.gallery-grid .mobile-mockup');
 
-    // These might only exist on mobile or if HTML is present
-    if (!galleryGrid || !prevBtn || !nextBtn) return;
+    if (!galleryGrid) return;
 
-    // Scroll amount (card width + gap which is approx 300-350 on mobile)
-    const scrollAmount = 320; 
+    // Get scroll amount based on panel width
+    function getScrollAmount() {
+        const panel = panels[0];
+        if (!panel) return 320;
+        return panel.offsetWidth + 16; // width + gap
+    }
 
-    prevBtn.addEventListener('click', () => {
-        galleryGrid.scrollBy({
-            left: -scrollAmount,
+    // Update active dot based on scroll position
+    function updateActiveDot() {
+        if (!dots.length || !panels.length) return;
+        
+        const scrollLeft = galleryGrid.scrollLeft;
+        const containerWidth = galleryGrid.offsetWidth;
+        
+        // Find which panel is most visible
+        let activeIndex = 0;
+        let minDistance = Infinity;
+        
+        panels.forEach((panel, index) => {
+            const panelCenter = panel.offsetLeft + (panel.offsetWidth / 2) - galleryGrid.offsetLeft;
+            const viewCenter = scrollLeft + (containerWidth / 2);
+            const distance = Math.abs(panelCenter - viewCenter);
+            
+            if (distance < minDistance) {
+                minDistance = distance;
+                activeIndex = index;
+            }
+        });
+        
+        // Update dots
+        dots.forEach((dot, index) => {
+            if (index === activeIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    }
+
+    // Scroll to specific panel
+    function scrollToPanel(index) {
+        if (!panels[index]) return;
+        
+        const panel = panels[index];
+        const containerLeft = galleryGrid.getBoundingClientRect().left;
+        const panelLeft = panel.getBoundingClientRect().left;
+        const scrollOffset = panelLeft - containerLeft + galleryGrid.scrollLeft;
+        
+        // Center the panel
+        const centerOffset = (galleryGrid.offsetWidth - panel.offsetWidth) / 2;
+        
+        galleryGrid.scrollTo({
+            left: scrollOffset - centerOffset,
             behavior: 'smooth'
+        });
+    }
+
+    // Arrow button clicks
+    if (prevBtn && nextBtn) {
+        prevBtn.addEventListener('click', () => {
+            galleryGrid.scrollBy({
+                left: -getScrollAmount(),
+                behavior: 'smooth'
+            });
+        });
+
+        nextBtn.addEventListener('click', () => {
+            galleryGrid.scrollBy({
+                left: getScrollAmount(),
+                behavior: 'smooth'
+            });
+        });
+        
+        // Animate arrows on page load (only on mobile)
+        if (window.innerWidth <= 900) {
+            setTimeout(() => {
+                prevBtn.classList.add('animate-bounce');
+                nextBtn.classList.add('animate-bounce');
+                
+                // Remove animation classes after animation completes
+                setTimeout(() => {
+                    prevBtn.classList.remove('animate-bounce');
+                    nextBtn.classList.remove('animate-bounce');
+                }, 3500);
+            }, 1500);
+        }
+    }
+
+    // Dot click navigation
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            scrollToPanel(index);
         });
     });
 
-    nextBtn.addEventListener('click', () => {
-        galleryGrid.scrollBy({
-            left: scrollAmount,
-            behavior: 'smooth'
-        });
+    // Update dots on scroll
+    let scrollTimeout;
+    galleryGrid.addEventListener('scroll', () => {
+        // Debounce for performance
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(updateActiveDot, 50);
     });
+
+    // Initial dot state
+    updateActiveDot();
 }
 
 // Initialize
@@ -553,80 +643,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     }
     
-    // Auto-scroll Gallery on Mobile
-    initMobileGalleryAutoScroll();
 });
 
-// ============================================
-// MOBILE GALLERY AUTO-SCROLL (CAROUSEL)
-// ============================================
+// Note: Auto-scroll removed per user request - using dots and arrows instead
 
-function initMobileGalleryAutoScroll() {
-    const galleryGrid = document.querySelector('.gallery-grid');
-    if (!galleryGrid) return;
-    
-    // Only run on mobile (screen width <= 768px)
-    const isMobile = () => window.innerWidth <= 768;
-    
-    if (!isMobile()) return;
-    
-    const panels = galleryGrid.querySelectorAll('.mobile-mockup');
-    if (panels.length < 2) return;
-    
-    let currentPanel = 0;
-    let autoScrollTimeout;
-    let hasCompletedOneCycle = false;
-    let userInteracted = false;
-    
-    function scrollToPanel(index) {
-        if (hasCompletedOneCycle || userInteracted) return;
-        
-        const panel = panels[index];
-        if (panel) {
-            const panelLeft = panel.offsetLeft;
-            const containerLeft = galleryGrid.offsetLeft;
-            const scrollPosition = panelLeft - containerLeft;
-            
-            galleryGrid.scrollTo({
-                left: scrollPosition,
-                behavior: 'smooth'
-            });
-        }
-    }
-    
-    function scrollToNextPanel() {
-        if (!isMobile() || hasCompletedOneCycle || userInteracted) {
-            return;
-        }
-        
-        currentPanel++;
-        
-        if (currentPanel >= panels.length) {
-            // One cycle completed
-            hasCompletedOneCycle = true;
-            return;
-        }
-        
-        scrollToPanel(currentPanel);
-        
-        // Schedule next scroll with 2 second delay (brief pause between panels)
-        autoScrollTimeout = setTimeout(scrollToNextPanel, 2000);
-    }
-    
-    // Start after a short delay to let the page load
-    setTimeout(() => {
-        if (isMobile()) {
-            // Start scrolling to panel 1 after 2 seconds
-            autoScrollTimeout = setTimeout(scrollToNextPanel, 2000);
-        }
-    }, 1000);
-    
-    // Stop auto-scroll if user manually scrolls
-    galleryGrid.addEventListener('touchstart', () => {
-        userInteracted = true;
-        if (autoScrollTimeout) {
-            clearTimeout(autoScrollTimeout);
-        }
-    });
-}
+// Auto-scroll feature removed - using pagination dots and arrows instead
 
