@@ -352,6 +352,10 @@ img {
     justify-items: center;
 }
 
+.chat-images-container.chat-images-3col {
+    grid-template-columns: repeat(3, 1fr);
+}
+
 .chat-image-box {
     background: var(--bg-card);
     border-radius: 16px;
@@ -374,6 +378,115 @@ img {
     height: auto;
     display: block;
     border-radius: 8px;
+}
+
+/* Public Channel Card */
+.public-channel-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba(0, 136, 204, 0.1) 100%);
+    border-radius: 16px;
+    border: 2px solid #0088cc;
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: var(--transition-medium);
+    max-width: 400px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.public-channel-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    position: relative;
+    z-index: 1;
+}
+
+.public-channel-icon,
+.public-channel-btn {
+    position: relative;
+    z-index: 1;
+}
+
+.public-channel-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(0, 136, 204, 0.1) 0%, transparent 70%);
+    animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+.public-channel-card:hover {
+    transform: translateY(-8px);
+    border-color: #00aaff;
+    box-shadow: 0 15px 40px rgba(0, 136, 204, 0.3);
+}
+
+.public-channel-icon {
+    color: #0088cc;
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+}
+
+.public-channel-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    position: relative;
+    z-index: 1;
+}
+
+.public-channel-subtitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #0088cc;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.public-channel-desc {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.public-channel-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #0088cc;
+    color: white;
+    padding: 0.875rem 1.75rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.public-channel-btn:hover {
+    background: #0099e6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 136, 204, 0.4);
 }
 
 .funding-section {
@@ -1206,6 +1319,18 @@ img {
    RESPONSIVE DESIGN
    ============================================ */
 
+@media (max-width: 1024px) {
+    .chat-images-container.chat-images-3col {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .chat-images-container.chat-images-3col .public-channel-card {
+        grid-column: span 2;
+        max-width: 500px;
+        justify-self: center;
+    }
+}
+
 @media (max-width: 900px) {
     .telegram-mockup {
         grid-template-columns: 1fr;
@@ -1484,6 +1609,40 @@ img {
     font-size: 1.4rem;
     display: flex;
     align-items: center;
+}
+
+/* Modal Divider */
+.modal-divider {
+    display: flex;
+    align-items: center;
+    margin: 1.5rem 0;
+    gap: 1rem;
+}
+
+.modal-divider::before,
+.modal-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-subtle), transparent);
+}
+
+.modal-divider span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+/* Public Channel Modal Button */
+.public-channel-modal-btn {
+    background: transparent;
+    color: #0088cc;
+    border: 2px solid #0088cc;
+}
+
+.public-channel-modal-btn:hover {
+    background: rgba(0, 136, 204, 0.1);
+    box-shadow: 0 10px 25px -5px rgba(0, 136, 204, 0.3);
 }
 
 /* Mobile Adjustments */
@@ -2221,7 +2380,8 @@ img {
 
 @media (max-width: 768px) {
     /* Chat images responsive */
-    .chat-images-container {
+    .chat-images-container,
+    .chat-images-container.chat-images-3col {
         grid-template-columns: 1fr;
         gap: 1.5rem;
         padding: 0 1rem;
@@ -2229,6 +2389,62 @@ img {
     
     .chat-image-box {
         max-width: 100%;
+    }
+    
+    .public-channel-card {
+        max-width: 100%;
+        padding: 0.75rem;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        text-align: left;
+    }
+    
+    .public-channel-card::before {
+        display: none;
+    }
+    
+    .public-channel-icon {
+        margin-bottom: 0;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+    }
+    
+    .public-channel-icon svg {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .public-channel-content {
+        flex: 1;
+        min-width: 0;
+        display: block;
+    }
+    
+    .public-channel-title {
+        font-size: 0.9rem;
+        margin-bottom: 0.1rem;
+        text-align: left;
+    }
+    
+    .public-channel-subtitle {
+        font-size: 0.75rem;
+        margin-bottom: 0;
+        text-align: left;
+    }
+    
+    .public-channel-desc {
+        display: none;
+    }
+    
+    .public-channel-btn {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.75rem;
+        width: auto;
+        flex-shrink: 0;
+        gap: 0.25rem;
     }
 
     /* Horizontal scroll for Funding section cards */
