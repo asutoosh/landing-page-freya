@@ -1,0 +1,13 @@
+# robots.txt for freyatrades.page
+# Allow all search engine crawlers
+
+User-agent: *
+Allow: /
+
+# Disallow unnecessary paths
+Disallow: /assets/
+Disallow: /favicon_io/
+
+# Sitemap location
+Sitemap: https://freyatrades.page/sitemap.xml
+
